@@ -1,14 +1,11 @@
- find_factors <- function(number) {
-  factors <- c()
-  
-  for (i in 1:number) {
-    if (number %% i == 0) {
-      factors <- c(factors, i)
+print_factors = function(n) {
+  print(paste("The factors of",n,"are:"))
+  for(i in 1:n) {
+    if((n %% i) == 0) {
+      print(i)
     }
   }
-  
-  return(factors)
 }
-number <- as.integer(readline(prompt = "Enter a number: "))
-factors <- find_factors(number)
-cat("Factors of", number, ":", factors, "\n")
+print_factors(4)
+print_factors(7)
+print_factors(12)
