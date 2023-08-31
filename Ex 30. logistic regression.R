@@ -1,34 +1,31 @@
- # Load required libraries
-library(dplyr)
-library(caTools)  # For splitting the data
-library(glmnet)   # For logistic regression
-library(caret)    # For confusion matrix
+# Load the necessary library
+library(caret)
 
-# Load the Iris dataset
+# Load the necessary dataset
 data("iris")
-
-# Selecting required columns
-iris_subset <- iris %>% select(Species, Petal.Length, Petal.Width)
 
 # Set a random seed for reproducibility
 set.seed(123)
 
-# Splitting the data into training and test sets (80% - 20%)
-split <- sample.split(iris_subset$Species, SplitRatio = 0.8)
-train_data <- subset(iris_subset, split == TRUE)
-test_data <- subset(iris_subset, split == FALSE)
+# Split the data into training (80%) and testing (20%) sets
+train_index <- createDataPartition(iris$Species, p = 0.8, list = FALSE)
+train_data <- iris[train_index, ]
+test_data <- iris[-train_index, ]
 
-# Create a logistic regression model
-log_model <- glm(Species ~ Petal.Length + Petal.Width, data = train_data, family = "binomial")
+# Create logistic regression model using training data
+logit_model <- glm(Species ~ Petal.Width + Petal.Length, data = train_data, family = "binomial")
 
-# Predict probabilities using the test data
-test_probs <- predict(log_model, newdata = test_data, type = "response")
+# Predict probabilities using test data
+predicted_probabilities <- predict(logit_model, newdata = test_data, type = "response")
 
-# Convert probabilities to predicted classes
-predicted_classes <- ifelse(test_probs > 0.5, "versicolor", "setosa")
+# Convert predicted probabilities to predicted classes
+predicted_classes <- ifelse(predicted_probabilities > 0.5, "versicolor", "setosa")
 
-# Create a confusion matrix
-confusion <- confusionMatrix(predicted_classes, test_data$Species)
-
-# Display the confusion matrix
+# Create confusion matrix
+confusion <- table(predicted = predicted_classes, actual = test_data$Species)
+print("Confusion Matrix:")
 print(confusion)
+
+# Calculate accuracy
+accuracy <- sum(diag(confusion)) / sum(confusion)
+cat("\nAccuracy:", accuracy)
